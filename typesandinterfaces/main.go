@@ -14,10 +14,24 @@ type saver interface {
 	Save() error
 }
 
+//type displayer interface {
+//	Display()
+//}
+
+type outputtable interface {
+	saver
+	Display()
+}
+
 func main() {
+	printSomething(1)
+	printSomething(1.5)
+	printSomething("mehumehu")
+	printSomething(true)
+
 	title, content := getNoteData()
 	todoText := getUserInput("Todo text: ")
-	todo, err := todo.New(todoText)
+	todoItem, err := todo.New(todoText)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -30,21 +44,61 @@ func main() {
 		return
 	}
 
-	todo.Display()
-	err = saveData(todo)
+	err = outputData(todoItem)
 
 	if err != nil {
 		return
 	}
 
-	fmt.Println("Saving todo succeeded!")
+	fmt.Println("Saving todoItem succeeded!")
 
-	userNote.Display()
-	err = saveData(userNote)
+	err = outputData(userNote)
+
+	//userNote.Display()
+	//err = saveData(userNote)
 
 	if err != nil {
 		return
 	}
+}
+
+func printSomething(value interface{}) {
+	intVal, ok := value.(int)
+
+	if ok {
+		fmt.Println("Integer:", intVal)
+		return
+	}
+
+	floatVal, ok := value.(float64)
+
+	if ok {
+		fmt.Println("Float:", floatVal)
+		return
+	}
+
+	stringVal, ok := value.(string)
+
+	if ok {
+		fmt.Println("String:", stringVal)
+		return
+	}
+
+	//switch value.(type) {
+	//case int:
+	//	fmt.Println("Integer:", value)
+	//case string:
+	//	fmt.Println("String:", value)
+	//case float64:
+	//	fmt.Println("Float:", value)
+	//default:
+	//	fmt.Println("Unknown type!")
+	//}
+}
+
+func outputData(data outputtable) error {
+	data.Display()
+	return saveData(data)
 }
 
 func saveData(data saver) error {
